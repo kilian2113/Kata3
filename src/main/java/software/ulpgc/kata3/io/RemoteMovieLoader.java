@@ -1,16 +1,21 @@
-package software.ulpgc.kata3;
+package software.ulpgc.kata3.io;
+
+import software.ulpgc.kata3.model.Movie;
 
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.zip.GZIPInputStream;
 
 public class RemoteMovieLoader implements MovieLoader {
     private static final String url = "https://datasets.imdbws.com/title.basics.tsv.gz";
+    private final Function<String, Movie> deserializer;
 
-    public RemoteMovieLoader() {
+    public RemoteMovieLoader(Function<String, Movie> deserializer) {
+        this.deserializer = deserializer;
     }
 
     public List<Movie> loadAll() {
@@ -41,7 +46,7 @@ public class RemoteMovieLoader implements MovieLoader {
         while (true) {
             String line = reader.readLine();
             if (line == null) break;
-            movies.add(createMovie(line));
+            movies.add(deserializer.apply(line));
         }
         return movies;
     }
@@ -52,18 +57,6 @@ public class RemoteMovieLoader implements MovieLoader {
 
     private GZIPInputStream unzip(InputStream inputStream) throws IOException {
         return new GZIPInputStream(new BufferedInputStream(inputStream));
-    }
-
-    private Movie createMovie(String line) {
-        return createMovie(line.split("\t"));
-    }
-
-    private Movie createMovie(String[] split) {
-        return new Movie(split[2], toInteger(split[7]));
-    }
-
-    private int toInteger(String s) {
-        return s.equals("\\N") ? 0 : Integer.parseInt(s);
     }
 }
 
