@@ -22,4 +22,8 @@ public class Histogram implements Iterable<Integer> {
     public Iterator<Integer> iterator() {
         return map.keySet().iterator();
     }
+
+    public  int size() {
+        return map.size();
+    }
 }
